@@ -8,10 +8,6 @@ project. That repo's data currently lives as CSV/Excel/TSV files; this
 repo is where the design and eventual implementation of the database
 that replaces (or sits underneath) that CSV layer is drafted and built.
 
-Despite the repo name (`nosql-hca-open-repo`), the drafted schema is a
-normalized **PostgreSQL** design, not a NoSQL/document-store one — see
-[`docs/data-model/postgres-schema-design.md`](docs/data-model/postgres-schema-design.md)
-for the current status and rationale.
 
 ## Documents
 
