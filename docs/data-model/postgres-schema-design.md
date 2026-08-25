@@ -25,8 +25,8 @@ the relationship explicitly rather than silently diverging.
 All numbers below were counted directly from the CSVs in this repo
 (`data/normalized/`, `data/curated/`) on 2026-08-19, not estimated.
 
-> **Two companion addenda extend this document; both correct or add to
-> what is below.**
+> **Three companion addenda extend this document; each corrects or adds
+> to what is below.**
 >
 > - [`…-addendum-parsed-works.md`](postgres-schema-design-addendum-parsed-works.md)
 >   — `data/parsed/*.tsv`, the richest work-entity data in the source repo.
@@ -37,6 +37,14 @@ All numbers below were counted directly from the CSVs in this repo
 >   `person_external_map` table, plus the correspondence layer. It also
 >   partially answers §H.8 below: the dump's `sted` table is **empty**
 >   (1 row), while its `almanak` table has 5,163.
+> - [`…-addendum-hca-db-works.md`](postgres-schema-design-addendum-hca-db-works.md)
+>   — the **works crosswalk** against the same dump: Index A (BFN) and
+>   Index B (Værkfortegnelsen) mapped onto this document's `work` table
+>   through `hca-open-repo`'s simplified WEMI rule. It scopes the
+>   crosswalk to the register's 768-row H. C. ANDERSEN wing (the other
+>   2,940 works have no counterpart in that source at all) and shows why
+>   the register's Work/Manifestation mixing, not title noise, is what
+>   caps matching.
 
 ---
 

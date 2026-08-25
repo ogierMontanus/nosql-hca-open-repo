@@ -20,6 +20,7 @@ for the current status and rationale.
 | [`docs/data-model/postgres-schema-design.md`](docs/data-model/postgres-schema-design.md) | Proposed normalized PostgreSQL schema for the Person / Work / Place registers — analysis of the source CSVs, conceptual model, full `CREATE TABLE` statements, CSV→Postgres column mapping, data-quality issues, editorial workflow, and open questions |
 | [`docs/data-model/postgres-schema-design-addendum-parsed-works.md`](docs/data-model/postgres-schema-design-addendum-parsed-works.md) | Companion addendum: what `data/parsed/*.tsv` (the richest work-entity data in the source repo) change in the schema above |
 | [`docs/data-model/postgres-schema-design-addendum-hca-db-persons.md`](docs/data-model/postgres-schema-design-addendum-hca-db-persons.md) | Companion addendum: the **person crosswalk** — mapping `hca_db`'s 2,018-row `brevperson` correspondence register onto `hca-open-repo`'s 10,228 person entities, with the `person_external_map` mapping table, match tiers, measured hold-out error rates, and the letter layer that hangs off it |
+| [`docs/data-model/postgres-schema-design-addendum-hca-db-works.md`](docs/data-model/postgres-schema-design-addendum-hca-db-works.md) | Companion addendum: the **works crosswalk** — `hca_db`'s Index A (BFN, 1,274 publications) and Index B (Værkfortegnelsen, 1,508 works) against `hca-open-repo`'s VÆRK-REGISTER, mapped through the project's simplified WEMI rule; includes the BFN attribution correction and the WEMI-level mismatch that caps title matching |
 
 ## Relationship to `hca-open-repo`
 

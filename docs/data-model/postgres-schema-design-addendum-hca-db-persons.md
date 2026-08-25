@@ -529,8 +529,11 @@ rate is enforced by the database, so a conflicting candidate cannot reach
   (16,301) are Index B and Index A of
   `hca_db_export/docs/authority-model.md`'s three-authority model, and
   they face `hca-open-repo`'s 3,708-row VÆRK-REGISTER — a crosswalk of
-  the same shape as this one, at similar scale, with its own hold-out
-  problems. It needs its own addendum. Note that
+  the same shape as this one, with its own hold-out problems. **That
+  addendum now exists:**
+  [`…-addendum-hca-db-works.md`](postgres-schema-design-addendum-hca-db-works.md),
+  which finds the crosswalk is scoped to 768 of those 3,708 works and
+  that BFN's publication→work edges are already curated in the dump. Note that
   `hca_db_export`'s authority model has **no person axis at all**: its
   Index A/B/C are all work-shaped. The person crosswalk designed here is
   a fourth axis alongside it, not an instance of it.
