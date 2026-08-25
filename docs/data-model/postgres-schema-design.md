@@ -25,6 +25,27 @@ the relationship explicitly rather than silently diverging.
 All numbers below were counted directly from the CSVs in this repo
 (`data/normalized/`, `data/curated/`) on 2026-08-19, not estimated.
 
+> **Three companion addenda extend this document; each corrects or adds
+> to what is below.**
+>
+> - [`…-addendum-parsed-works.md`](postgres-schema-design-addendum-parsed-works.md)
+>   — `data/parsed/*.tsv`, the richest work-entity data in the source repo.
+> - [`…-addendum-hca-db-persons.md`](postgres-schema-design-addendum-hca-db-persons.md)
+>   — the **person crosswalk** against the `hca_db` MySQL dump in
+>   `hca_db_export`: a second, external person register (`brevperson`,
+>   2,018 rows) mapped onto this document's `person` table through a
+>   `person_external_map` table, plus the correspondence layer. It also
+>   partially answers §H.8 below: the dump's `sted` table is **empty**
+>   (1 row), while its `almanak` table has 5,163.
+> - [`…-addendum-hca-db-works.md`](postgres-schema-design-addendum-hca-db-works.md)
+>   — the **works crosswalk** against the same dump: Index A (BFN) and
+>   Index B (Værkfortegnelsen) mapped onto this document's `work` table
+>   through `hca-open-repo`'s simplified WEMI rule. It scopes the
+>   crosswalk to the register's 768-row H. C. ANDERSEN wing (the other
+>   2,940 works have no counterpart in that source at all) and shows why
+>   the register's Work/Manifestation mixing, not title noise, is what
+>   caps matching.
+
 ---
 
 ## 1. Analysis of the source data
@@ -1091,3 +1112,8 @@ Decisions the CSVs alone cannot settle — need project-team input:
    flags their location/ownership as pending with Søren; this schema's
    `work_author`/`place_geocode` tables are designed to absorb that data
    once it arrives, but cannot be finalized against it sight unseen.
+9. **Is the `hca_db` crosswalk in scope for this database, or does the
+   verified subset stay a curated CSV in `hca-open-repo`?** See the
+   person addendum §10.1 — today `data/curated/breve_person_crosswalk.csv`
+   holds one verified row and `hca-open-repo` remains the source of truth,
+   so the two answers have not yet diverged in practice. They will.
