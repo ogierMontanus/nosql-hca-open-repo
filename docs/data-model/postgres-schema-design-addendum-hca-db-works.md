@@ -317,14 +317,14 @@ Three usable fields, not one: `subtype="firstline"` identifies the line,
 hyphenated). The project does not have to invent a normalization — SV
 ships one, made by the edition's own editors.
 
-| SV volume | Tagged `firstline` elements |
-|---|---|
-| `Andersen 7 - Digte I` | 358 |
-| `Andersen 8 - Digte II` | 474 |
-| **Total** | **832** (830 carry both `@corresp` and `@xml:id`) |
+| SV volume | Best available revision | Tagged `firstline` elements |
+|---|---|---|
+| `Andersen 7 - Digte I` | repo root | 358 |
+| `Andersen 8 - Digte II` | **`firstline2024-09-22/`** | **574** (root copy has only 474 — see §2.4) |
+| **Total** | | **932** |
 
-Only the two poetry volumes carry the tagging; the other 27 files have
-none. `@corresp` differs from the rendered line text on 69.7 % of rows —
+Only the two poetry volumes carry the tagging; no other file in the repo
+has any. `@corresp` differs from the rendered line text on 69.7 % of rows —
 it is the *stripped* form (trailing commas, semicolons and closing
 guillemets removed), which is exactly what a join wants.
 
@@ -338,21 +338,21 @@ prefix match for truncated titles.
 
 | Link | Reached | Of |
 |---|---|---|
-| `hca_db` poem → SV firstline | **547** | 832 SV firstlines (65.7 %) |
-| Register poem → SV firstline | **25** | 325 register poem entries |
-| **Three-way** (register ↔ SV ↔ `hca_db`) | **17** | — |
+| `hca_db` poem → SV firstline | **611** | 932 SV firstlines (65.6 %) |
+| Register poem → SV firstline | **26** | 325 register poem entries |
+| **Three-way** (register ↔ SV ↔ `hca_db`) | **18** | — |
 
 For the register — the side that matters for this crosswalk:
 
 | Method | Matched | of 325 real work entries |
 |---|---|---|
 | Title alone (§2.2's baseline) | 13 | 4.0 % |
-| **SV incipit** | **25** | **7.7 %** |
+| **SV incipit** | **26** | **8.0 %** |
 | Overlap | 3 | — |
-| **Combined** | **35** | **10.8 %** |
+| **Combined** | **36** | **11.1 %** |
 
-**22 register poems become reachable that no title matcher could find** —
-a 2.7× improvement on the baseline. The reason it works is visible in the
+**23 register poems become reachable that no title matcher could find** —
+a 2.8× improvement on the baseline. The reason it works is visible in the
 pairs: the two registers frequently give the same poem completely
 different titles, and only the incipit connects them.
 
@@ -369,9 +369,13 @@ Two candidate files, following the project's propose→verify convention —
 script as-is**:
 
 - [`exports/poem-incipit-crosswalk-candidates.csv`](exports/poem-incipit-crosswalk-candidates.csv)
-  — 25 register↔SV rows, 17 of them three-way, sorted three-way first.
+  — 26 register↔SV rows, 18 of them three-way, sorted three-way first.
 - [`exports/hca-db-poem-to-sv-firstline-candidates.csv`](exports/hca-db-poem-to-sv-firstline-candidates.csv)
-  — 547 `hca_db`↔SV rows.
+  — 612 `hca_db`↔SV rows.
+
+Both files carry `sv_source_file` and `sv_xml_id_source` (`tei` where SV
+supplies the slug, `derived` where this project minted it — see §2.4), so
+a reviewer can always tell an editorial identifier from a computed one.
 
 **Why the register side caps at 7.7 % — an undocumented register
 convention.** 120 of the register's 325 poem entries carry a **leading
@@ -401,10 +405,113 @@ enough to use it as a routing signal and not enough to state its meaning.
 A further 13 poem entries are `se:` redirects (aliases, not works) and
 are excluded from every denominator above.
 
-**Remaining gap.** 285 of the 832 SV firstlines are reached from neither
-register nor `hca_db`, and SV covers only volumes 7–8 for this tagging.
-Volume 9 (*Blandinger*) has no `firstline` markup, so poems printed there
-are unreachable by this method until it is tagged.
+**Remaining gap.** 320 of the 932 SV firstlines are reached from neither
+register nor `hca_db`. The tagging covers only volumes 7–8; §2.4 reports
+what checking volume 9 established about that boundary.
+
+---
+
+### 2.4 What the volume 9 index is, and a revision trap it exposed
+
+Volume 9 (*Blandinger*) does end with an index — `<div type="index">`
+headed **Register**, at printed page 724. It is **not a poem index**, and
+it is worth stating what it is so nobody looks for poems in it again.
+
+| Property | Value |
+|---|---|
+| Items | **58** |
+| Structure | `<list type="index">` with `<head>` letter dividers (A, B, D, E, F, G, H, I, J, L, M, P, S, T, U, V) |
+| Each item | `<term>` + `<ref>` (a printed page number) |
+| Page range referenced | 45–576 |
+| Titles in italic (`<hi rend="italic">`) | 13 — independently published works |
+| Editor-supplied titles (`<source subtype="foreign">`) | 12 |
+| Titles in square brackets | **3** |
+
+It is an **alphabetical title register for the volume's own contents** —
+`Akrostichon-Gaade` 566, `Bertel Thorvaldsen` 412, `Danske Folkesagn`
+545 — pointing at printed pages, not at works elsewhere. It carries no
+incipits as such.
+
+The three square-bracketed entries are the only incipit-shaped ones, and
+the bracket is the edition's convention for *an untitled piece cited by
+its opening words*:
+
+```
+[Betragter Aanden den Uendelighed af Verdener over os]            p. 287
+[Der ligger dog noget ganske Forunderligt, noget dybt Magnetisk,
+ i Læsning!]                                                      p. 289
+[Jeg har lagt Mærke til, at hos de fleste adelige Forfattere]      p. 289
+```
+
+All three are **prose aphorisms**, not poems — they sit inside
+*Digterblomster, og Aforismer* (p. 276) and *Aphorismer af forskjellige
+Digtere* (p. 272). They add nothing to the poem crosswalk.
+
+**This closes, rather than widens, the gap §2.3 flagged.** Volume 9's
+three top-level sections are *Genreeksperimenter*, *Biografiske Skitser*
+and *Artikler, anmeldelser og breve* — miscellaneous prose. There are no
+poems in Blandinger to reach, so the absence of `firstline` markup there
+is correct, not a tagging omission. The earlier note that poems printed
+in volume 9 were "unreachable until it is tagged" was wrong about the
+premise.
+
+**Index and incipit markup are mutually exclusive across the corpus.**
+Surveying all 12 volume files plus the 15 working copies:
+
+| | Volumes |
+|---|---|
+| Has `<div type="index">` | **9 only** (58 items) |
+| Has `<l subtype="firstline">` | **7 and 8 only** (932 in the best revisions) |
+| Has neither | 10–18 |
+
+So there is no second index anywhere in this corpus to mine, and the
+poetry volumes have no back-of-volume index at all — the inline
+`firstline` tagging is the only incipit source SV offers.
+
+#### The revision trap
+
+Checking volume 9 meant walking the whole repo, which surfaced something
+that matters more than the index itself: **the repository root does not
+hold the most complete files.**
+
+`Andersen 8 - Digte II` exists in four copies. The root copy carries
+**474** tagged firstlines; `firstline2024-09-22/` carries **574**.
+Comparing on the folded incipit text, the later revision is a **strict
+superset** — all 474 of the root's incipits are present, plus 100 more,
+with none lost. Among the additions are lines the earlier pass missed
+entirely (`Bag Sorø Sø ved Skoven`, `Bogladen er en sand Aladdins Hule`,
+`Den slanke Lilie, den hvide`).
+
+There is a catch, which is presumably why the revision was never merged:
+**the 2024-09-22 copy has `@corresp` on all 574 rows but `@xml:id` on
+none.** The slugs were stripped. So the two copies are each incomplete in
+a different way — the root has editorial identifiers for fewer poems, the
+revision has more poems but no identifiers.
+
+This project's crosswalk keys on `@corresp`, not the slug, so the fuller
+revision is usable today; where a slug is needed it is minted with the
+same rules SV uses and marked `sv_xml_id_source='derived'` in the
+exports, never presented as an editorial identifier.
+
+**Effect of using the best revision per volume:**
+
+| | Root files | Best revisions |
+|---|---|---|
+| SV incipit pool | 832 | **932** |
+| `hca_db` poems linked | 547 | **611** |
+| Register poems linked | 25 | **26** |
+| Register combined coverage | 10.8 % | **11.1 %** |
+
+The gain lands almost entirely on the `hca_db` side, for the reason §2.3
+already established: the register simply does not hold many individual
+SV-printed poems, so a bigger SV pool cannot help it much.
+
+**Consequence for §9.6's "which revision is citable" question:** it is no
+longer a formality. Anyone building on `sv-datarens` who reads only the
+root files silently loses 100 incipits, and anyone who reads only the
+subdirectory silently loses every `xml:id`. The correct input is
+file-by-file, not directory-wide, and the editors should be asked to
+merge the two states before any of this is promoted past `candidate`.
 
 ---
 
@@ -647,7 +754,7 @@ CREATE TABLE external_publication_about_work (
 CREATE TYPE work_match_tier AS ENUM (
   'canonical_title_exact',   -- 193 — matched Andersen's own Danish title
   'variant_title_exact',     --   2 — matched a translated title
-  'incipit',                 -- built in §2.3: 25 register + 547 hca_db candidates
+  'incipit',                 -- built in §2.3-2.4: 26 register + 612 hca_db candidates
   'title_fuzzy',
   'via_bfn_number',          -- strongest: an explicit BFN id on both sides
   'manual'
@@ -799,7 +906,12 @@ any fuzzy method, not an optimistic estimate.
 
 SV incipits (§2.3) were extracted with an XML parser over the TEI
 namespace, selecting `<l>` elements with `@subtype="firstline"` and
-preferring `@corresp` over the rendered text. The comparison key folds
+preferring `@corresp` over the rendered text, from the best available
+revision per volume (§2.4): the repo root for Digte I, and
+`firstline2024-09-22/` for Digte II. The volume 9 index (§2.4) was read
+from `<div type="index">`'s `<list type="index">`, one row per `<item>`
+with its `<term>`/`<ref>` pair; the index/incipit survey covers all 12
+volume files and all 15 working copies in the repository. The comparison key folds
 `æ/ø/å` → `ae/oe/aa`, unifies `ei`/`ej`, lowercases and strips
 non-alphanumerics; matching is exact on that key, then a 24-character
 prefix fallback. Register `se:` redirect entries are excluded from every
@@ -850,7 +962,7 @@ poem can never be silently confirmed as the anthology that printed it
 | **0** | Correct "Bjørn" → "Birger" in `hca_db_export`'s two spec documents (§0) | One-line fix; blocks nothing but misleads everyone |
 | **1** | Load `external_work`, `external_work_title`, `external_publication`, `genre_vid_block` verbatim; derive genre from the VID block | No crosswalk needed; loads 100 % of both indexes |
 | **2** | Load `external_publication_work` + `external_publication_about_work` — the 5,013 stated edges, `Anmeldelse af` kept separate | The BFN→Work crosswalk arrives complete (99.2 % of BFN rows) |
-| **3** | ~~Parse incipits and re-match the Digte~~ — **done** (§2.3): 4.0 % → 10.8 % on the register side, 547 `hca_db`↔SV links, two candidate files emitted | Human-verify the candidates; confirm the `*` convention with the editors |
+| **3** | ~~Parse incipits and re-match the Digte~~ — **done** (§2.3–2.4): 4.0 % → 11.1 % on the register side, 611 `hca_db`↔SV links, two candidate files emitted | Human-verify the candidates; confirm the `*` convention with the editors; ask them to merge the two Digte II revisions |
 | **4** | Populate `work_external_map` at all tiers with `register_level`/`source_level` set | Zero rows promoted to `confirmed` |
 | **5** | Human review, largest/most-cited works first; cross-level mappings as a separate queue | Promotion requires `verified_via`, as on the person axis |
 | **6** | Resolve the 1,699 unnamed-translator rows once §9.1 is decided | Editorial decision first, code second |
@@ -883,9 +995,12 @@ poem can never be silently confirmed as the anthology that printed it
    coming, and should `sv-datarens` be registered now as a third
    `external_work_register` row with `authority_index='C'` (the column
    already allows it), keyed on `sv_xml_id`?
-6. **Which SV revision is citable?** The `sv-datarens` filenames are
-   working-copy names. Any confirmed incipit mapping should record the
-   commit it was derived from; today that is `848532e`.
+6. **Which SV revision is citable — and can the two Digte II states be
+   merged?** (§2.4) The root copy has slugs for 474 incipits; the
+   `firstline2024-09-22/` copy has 574 incipits and no slugs. Neither is
+   complete. Any confirmed mapping should record both the commit
+   (`848532e`) and the specific file; the exports carry `sv_source_file`
+   for that reason.
 7. **What does the register's leading `*` mean?** (§2.3) 120 works carry
    it, all HCA-wing poems, undocumented. It predicts absence from SV at
    3.6 % vs 39.3 %, which is enough to route on and not enough to
