@@ -32,6 +32,10 @@ for the current status and rationale.
 - **Signpost:** `hca-open-repo`'s
   `docs/data-model/postgresql-migration.md` points here for anyone
   looking for the PostgreSQL draft from that side.
+- **`sv-datarens`:** the TEI/XML working copy of *Samlede Værker*
+  (volumes 7–18). Read-only, and the source of the poem-incipit crosswalk
+  in the works addendum §2.3 — its `<l subtype="firstline">` markup
+  supplies the edition editors' own normalized incipit and a slug of it.
 - **A third repo, `hca_db_export`:** a read-only snapshot of the
   SDU `hca_db` MySQL database (dumped 2023-06-29) plus the crosswalk
   specification in its `docs/`. It is an **external authority mapped

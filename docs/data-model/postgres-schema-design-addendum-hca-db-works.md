@@ -22,8 +22,9 @@ whose §8 deferred exactly this work.
 > fire.
 
 All figures were counted from `hca_db_export/hca_db.sql` (phpMyAdmin dump,
-MySQL 5.7, 2023-06-29) and `hca-open-repo`'s `data/normalized/` on
-2026-08-25; §7 gives the method.
+MySQL 5.7, 2023-06-29), `hca-open-repo`'s `data/normalized/`, and — for
+§2.3 — `ogierMontanus/sv-datarens` at commit `848532e`; §7 gives the
+method.
 
 ---
 
@@ -290,7 +291,122 @@ actually work for poems, and both sides already expose it —
 `vaerktitler` inside the title parenthesis, the register inside
 guillemets (`A. Henselt (»Fra Strengene flyver en Fuglehær -«)`), which
 `wemi-and-relations.md` parsing rule 3 already names as a title marker.
-That is a real, measurable improvement path, not a hope; §8 phases it.
+**This has now been built and measured against a third source — see §2.3.**
+
+### 2.3 The incipit crosswalk, built on `sv-datarens`
+
+The join key §2.2 predicted is supplied, already normalized, by a fourth
+repository: **`ogierMontanus/sv-datarens`** — the TEI/XML working copy of
+*Samlede Værker* (SV), 29 files covering volumes 7–18. It was attached to
+this session read-only and is the first Index-C-adjacent source the
+project has had in hand (§6 still applies: this is the edition text, not
+the Laravel relational layer).
+
+**What SV marks up.** In the two poetry volumes, every poem's first line
+carries an explicit incipit tag:
+
+```xml
+<l rend="firstIndent" subtype="firstline"
+   corresp="Jeg drømte – dog en Drøm var det ei ganske!"
+   xml:id="jeg-droemte-dog-en-droem-var-det-ei-ganske">Jeg drømte – dog en Drøm …</l>
+```
+
+Three usable fields, not one: `subtype="firstline"` identifies the line,
+`@corresp` holds the **editors' own punctuation-normalized incipit**, and
+`@xml:id` is a **slug of it** (`æ`→`ae`, `ø`→`oe`, lowercased,
+hyphenated). The project does not have to invent a normalization — SV
+ships one, made by the edition's own editors.
+
+| SV volume | Tagged `firstline` elements |
+|---|---|
+| `Andersen 7 - Digte I` | 358 |
+| `Andersen 8 - Digte II` | 474 |
+| **Total** | **832** (830 carry both `@corresp` and `@xml:id`) |
+
+Only the two poetry volumes carry the tagging; the other 27 files have
+none. `@corresp` differs from the rendered line text on 69.7 % of rows —
+it is the *stripped* form (trailing commas, semicolons and closing
+guillemets removed), which is exactly what a join wants.
+
+**Method.** Fold both sides to a comparison key: lowercase, `æ/ø/å` →
+`ae/oe/aa`, unify the `ei`/`ej` orthography (SV keeps Andersen's original
+spelling, `hca_db` modernises — `ei forsvunden` vs `ej forsvunden`),
+strip non-alphanumerics. Exact key match first, then a 24-character
+prefix match for truncated titles.
+
+**Results, all three sides:**
+
+| Link | Reached | Of |
+|---|---|---|
+| `hca_db` poem → SV firstline | **547** | 832 SV firstlines (65.7 %) |
+| Register poem → SV firstline | **25** | 325 register poem entries |
+| **Three-way** (register ↔ SV ↔ `hca_db`) | **17** | — |
+
+For the register — the side that matters for this crosswalk:
+
+| Method | Matched | of 325 real work entries |
+|---|---|---|
+| Title alone (§2.2's baseline) | 13 | 4.0 % |
+| **SV incipit** | **25** | **7.7 %** |
+| Overlap | 3 | — |
+| **Combined** | **35** | **10.8 %** |
+
+**22 register poems become reachable that no title matcher could find** —
+a 2.7× improvement on the baseline. The reason it works is visible in the
+pairs: the two registers frequently give the same poem completely
+different titles, and only the incipit connects them.
+
+| Register label | `hca_db` title | Joined via |
+|---|---|---|
+| `»Det nye Aar kommer susende -«` | `Ved årsskifter III` | `det-nye-aar-kommer-susende` |
+| `Paa Nytaarsmorgen (»Du Evighedens Gaade -«)` | `Et besøg i Portugal 1866 6` | `du-evighedens-gaade` |
+| `»Barn Jesus i en Krybbe laae -« (Aarets tolv Maaneder)` | `December` | `barn-jesus-i-en-krybbe-laae` |
+
+No title normalization reaches those. The incipit does.
+
+Two candidate files, following the project's propose→verify convention —
+**neither is human-verified, and neither should be consumed by a build
+script as-is**:
+
+- [`exports/poem-incipit-crosswalk-candidates.csv`](exports/poem-incipit-crosswalk-candidates.csv)
+  — 25 register↔SV rows, 17 of them three-way, sorted three-way first.
+- [`exports/hca-db-poem-to-sv-firstline-candidates.csv`](exports/hca-db-poem-to-sv-firstline-candidates.csv)
+  — 547 `hca_db`↔SV rows.
+
+**Why the register side caps at 7.7 % — an undocumented register
+convention.** 120 of the register's 325 poem entries carry a **leading
+asterisk** (`*»Bag Rendsborgs gamle Volde -«`). That asterisk appears on
+**120 of 3,708 works and nowhere else in the register** — only on
+H. C. ANDERSEN-wing poems. It is a near-perfect predictor of absence from
+SV:
+
+| Register poem entries | With an incipit | Matched to SV |
+|---|---|---|
+| **Not** `*`-marked | 61 | **24 (39.3 %)** |
+| `*`-marked | 111 | **4 (3.6 %)** |
+
+Spot-checking confirms the pattern rather than just correlating with it:
+`*»Aabne Strand ved Corselitze -«` and `*»Da Skotlands Skjalde deres
+Sange skrev -«` (Til Miss Ross 1847) are occasional and album verse that
+SV 7–8 do not print as poems at all — the phrases occur in SV only inside
+commentary notes.
+
+So the ceiling is set by **what the register contains**, not by the
+matcher: on the non-asterisked entries the incipit method reaches 39.3 %,
+which is an order of magnitude better than title matching. **What the
+asterisk actually denotes editorially is not documented anywhere in
+`hca-open-repo` and should be confirmed with the editors** — this
+document establishes only that it predicts absence from SV, which is
+enough to use it as a routing signal and not enough to state its meaning.
+A further 13 poem entries are `se:` redirects (aliases, not works) and
+are excluded from every denominator above.
+
+**Remaining gap.** 285 of the 832 SV firstlines are reached from neither
+register nor `hca_db`, and SV covers only volumes 7–8 for this tagging.
+Volume 9 (*Blandinger*) has no `firstline` markup, so poems printed there
+are unreachable by this method until it is tagged.
+
+---
 
 ---
 
@@ -531,7 +647,7 @@ CREATE TABLE external_publication_about_work (
 CREATE TYPE work_match_tier AS ENUM (
   'canonical_title_exact',   -- 193 — matched Andersen's own Danish title
   'variant_title_exact',     --   2 — matched a translated title
-  'incipit',                 -- reserved for the Phase 3 poem matcher (§8)
+  'incipit',                 -- built in §2.3: 25 register + 547 hca_db candidates
   'title_fuzzy',
   'via_bfn_number',          -- strongest: an explicit BFN id on both sides
   'manual'
@@ -640,8 +756,18 @@ ALTER TABLE work_external_map ADD CONSTRAINT wem_fuzzy_needs_a_reason
 
 ## 6. What this addendum still does not cover
 
-- **Index C** (the Complete Works Edition — TEI/XML in a GitHub repo plus
-  a Laravel database) is **not in this dump at all**. Everything
+- **Index C is still only half present.** `sv-datarens` (§2.3) supplies
+  the *edition text* side — TEI/XML for SV volumes 7–18 — and that is
+  already enough to build the incipit crosswalk. What is still missing is
+  the **Laravel relational layer**: anthology membership, parent/child
+  work hierarchies, Laravel numeric IDs and UUIDs, which
+  `mapping-rules.md` says to prefer over reconstructing relationships
+  from XML. Until that arrives, Index C's *relationships* remain
+  unaddressed. Note also that the `sv-datarens` files are a **working
+  copy** (filenames carry editor names and dates —
+  `_w_notes_Rebecca`, `_2024-06-23`), not a released edition snapshot; a
+  citable version should be pinned before anything is promoted from it.
+  The rest of the original caveat stands: Everything
   `architecture.md` and `mapping-rules.md` say about Index C — anthology
   membership from Laravel, embedded BFN references in XML, UUIDs, TEI
   ids — remains unaddressed and unverifiable from `hca_db_export` as it
@@ -670,6 +796,14 @@ contiguity check (all 15 blocks contiguous). "Used" VIDs are those with
 at least one `vaerktitler` row. Match rates are exact-string on the
 normalized form — deliberately, so the reported ceiling is a floor for
 any fuzzy method, not an optimistic estimate.
+
+SV incipits (§2.3) were extracted with an XML parser over the TEI
+namespace, selecting `<l>` elements with `@subtype="firstline"` and
+preferring `@corresp` over the rendered text. The comparison key folds
+`æ/ø/å` → `ae/oe/aa`, unifies `ei`/`ej`, lowercases and strips
+non-alphanumerics; matching is exact on that key, then a 24-character
+prefix fallback. Register `se:` redirect entries are excluded from every
+denominator, since they are aliases rather than works.
 
 The BFN attribution in §0 was checked against the dump's own prose, the
 H.C. Andersen Centre's published bibliography site, and catalogue
@@ -716,7 +850,7 @@ poem can never be silently confirmed as the anthology that printed it
 | **0** | Correct "Bjørn" → "Birger" in `hca_db_export`'s two spec documents (§0) | One-line fix; blocks nothing but misleads everyone |
 | **1** | Load `external_work`, `external_work_title`, `external_publication`, `genre_vid_block` verbatim; derive genre from the VID block | No crosswalk needed; loads 100 % of both indexes |
 | **2** | Load `external_publication_work` + `external_publication_about_work` — the 5,013 stated edges, `Anmeldelse af` kept separate | The BFN→Work crosswalk arrives complete (99.2 % of BFN rows) |
-| **3** | Parse incipits from `vaerktitler` parentheses and register guillemets; re-match the 338 Digte (§2.2) | Measure the rate before and after; 3.8 % is the baseline to beat |
+| **3** | ~~Parse incipits and re-match the Digte~~ — **done** (§2.3): 4.0 % → 10.8 % on the register side, 547 `hca_db`↔SV links, two candidate files emitted | Human-verify the candidates; confirm the `*` convention with the editors |
 | **4** | Populate `work_external_map` at all tiers with `register_level`/`source_level` set | Zero rows promoted to `confirmed` |
 | **5** | Human review, largest/most-cited works first; cross-level mappings as a separate queue | Promotion requires `verified_via`, as on the person axis |
 | **6** | Resolve the 1,699 unnamed-translator rows once §9.1 is decided | Editorial decision first, code second |
@@ -744,10 +878,18 @@ poem can never be silently confirmed as the anthology that printed it
    register's own rows unclassified. A `work.wemi_level` column would fix
    that — but it is an assertion about `hca-open-repo`'s data, so it is
    the project's call, not this document's.
-4. **Where does Index C enter?** (§6) The dump has no Laravel/TEI
-   content. Is a second export coming, and should the schema above be
-   generalised now (`authority_index` already allows `'C'`) or extended
-   when it arrives?
+4. **Where does the rest of Index C enter?** (§6) `sv-datarens` gives the
+   TEI side; the Laravel relational layer is still absent. Is an export
+   coming, and should `sv-datarens` be registered now as a third
+   `external_work_register` row with `authority_index='C'` (the column
+   already allows it), keyed on `sv_xml_id`?
+6. **Which SV revision is citable?** The `sv-datarens` filenames are
+   working-copy names. Any confirmed incipit mapping should record the
+   commit it was derived from; today that is `848532e`.
+7. **What does the register's leading `*` mean?** (§2.3) 120 works carry
+   it, all HCA-wing poems, undocumented. It predicts absence from SV at
+   3.6 % vs 39.3 %, which is enough to route on and not enough to
+   interpret. The editors will know in one sentence.
 5. **`anbefalet udgave af` as editorial opinion** (§3.3) — 904 edges
    record which edition the Centre recommends. Should that surface to
    readers as a recommendation, or stay internal provenance?
